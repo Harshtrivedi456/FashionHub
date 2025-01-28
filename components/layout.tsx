@@ -1,109 +1,54 @@
-import Link from "next/link"
-import { useContext } from "react"
-import { AuthContext } from "../contexts/auth-context"
-import { CartContext } from "../contexts/cart-context"
-import { categories } from "../data/products"
+"use client"
 
-export default function Layout({ children }: { children: React.ReactNode }) {
-  const { user, logout } = useContext(AuthContext)
-  const { cart } = useContext(CartContext)
+import { useState, useEffect } from "react"
+import Image from "next/image"
+
+const offers = [
+  {
+    id: 1,
+    image:
+      "https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80",
+    text: "Summer Sale! 20% off on all summer collection items",
+  },
+  {
+    id: 2,
+    image:
+      "https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80",
+    text: "New Arrivals! Check out our latest fashion trends",
+  },
+  {
+    id: 3,
+    image:
+      "https://images.unsplash.com/photo-1534452203293-494d7ddbf7e0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2072&q=80",
+    text: "Free Shipping on orders over $50",
+  },
+]
+
+export default function OfferCarousel() {
+  const [currentOffer, setCurrentOffer] = useState(0)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentOffer((prev) => (prev + 1) % offers.length)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [])
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="bg-indigo-600 text-white py-6">
-        <div className="container mx-auto px-4 flex justify-between items-center">
-          <Link href="/" className="text-3xl font-bold">
-            FashionHub
-          </Link>
-          <nav className="flex items-center space-x-6">
-            <Link href="/" className="text-lg hover:underline">
-              Home
-            </Link>
-            {categories.map((category) => (
-              <Link
-                key={category}
-                href={`/products?category=${encodeURIComponent(category)}`}
-                className="text-lg hover:underline"
-              >
-                {category}
-              </Link>
-            ))}
-            <Link href="/cart" className="text-lg hover:underline">
-              Cart ({cart.length})
-            </Link>
-            {user ? (
-              <>
-                <span className="text-lg">Welcome, {user.name}</span>
-                <button onClick={logout} className="text-lg hover:underline">
-                  Logout
-                </button>
-              </>
-            ) : (
-              <Link href="/login" className="text-lg hover:underline">
-                Login
-              </Link>
-            )}
-          </nav>
-        </div>
-      </header>
-      <main className="flex-grow container mx-auto px-4 py-8">{children}</main>
-      <footer className="bg-gray-800 text-white py-8">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="text-xl font-bold mb-4">Contact Us</h3>
-              <p>Email: info@fashionhub.com</p>
-              <p>Phone: +1 (123) 456-7890</p>
-              <p>Address: 123 Fashion Street, Style City, FC 12345</p>
-            </div>
-            <div>
-              <h3 className="text-xl font-bold mb-4">Quick Links</h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link href="/about" className="hover:underline">
-                    About Us
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/faq" className="hover:underline">
-                    FAQ
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/shipping" className="hover:underline">
-                    Shipping & Returns
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/privacy" className="hover:underline">
-                    Privacy Policy
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-xl font-bold mb-4">Newsletter</h3>
-              <p className="mb-4">Subscribe to our newsletter for the latest updates and offers.</p>
-              <form className="flex">
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  className="flex-grow px-4 py-2 rounded-l-lg text-gray-900"
-                />
-                <button
-                  type="submit"
-                  className="bg-indigo-600 text-white px-4 py-2 rounded-r-lg hover:bg-indigo-700 transition-colors"
-                >
-                  Subscribe
-                </button>
-              </form>
-            </div>
-          </div>
-          <div className="mt-8 text-center">
-            <p>&copy; 2023 FashionHub. All rights reserved.</p>
+    <div className="relative w-full h-[400px] overflow-hidden rounded-lg">
+      {offers.map((offer, index) => (
+        <div
+          key={offer.id}
+          className={`absolute top-0 left-0 w-full h-full transition-opacity duration-1000 ${
+            index === currentOffer ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          <Image src={offer.image || "/placeholder.svg"} alt={`Offer ${offer.id}`} layout="fill" objectFit="cover" />
+          <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
+            <p className="text-xl font-bold">{offer.text}</p>
           </div>
         </div>
-      </footer>
+      ))}
     </div>
   )
 }

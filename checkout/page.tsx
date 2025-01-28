@@ -2,9 +2,10 @@
 
 import { useState, useContext } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import Layout from "../components/layout"
 import { CartContext } from "../contexts/cart-context"
-import Image from "next/image"
+import { products } from "../data/products"
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -116,27 +117,33 @@ export default function CheckoutPage() {
         </div>
         <div>
           <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-          <div className="space-y-2">
-            {cart.map((item) => (
-              <div key={item.id} className="flex justify-between items-center mb-2">
-                <div className="flex items-center">
-                  <Image
-                    src={item.image || "/placeholder.svg"}
-                    alt={item.name}
-                    width={50}
-                    height={50}
-                    className="rounded-md mr-4"
-                  />
-                  <span>
-                    {item.name} x {item.quantity}
-                  </span>
+          <div className="space-y-4">
+            {cart.map((item) => {
+              const product = products.find((p) => p.id === item.id)
+              return (
+                <div key={item.id} className="flex items-center space-x-4">
+                  <div className="w-20 h-20 relative">
+                    <Image
+                      src={product?.image || "/placeholder.svg"}
+                      alt={item.name}
+                      layout="fill"
+                      objectFit="cover"
+                      className="rounded-md"
+                    />
+                  </div>
+                  <div className="flex-grow">
+                    <h3 className="font-semibold">{item.name}</h3>
+                    <p className="text-gray-600">Quantity: {item.quantity}</p>
+                    <p className="text-indigo-600 font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                  </div>
                 </div>
-                <span>${(item.price * item.quantity).toFixed(2)}</span>
+              )
+            })}
+            <div className="border-t pt-4 mt-4">
+              <div className="flex justify-between font-bold">
+                <span>Total:</span>
+                <span>${total.toFixed(2)}</span>
               </div>
-            ))}
-            <div className="border-t pt-2 font-bold">
-              <span>Total:</span>
-              <span>${total.toFixed(2)}</span>
             </div>
           </div>
         </div>

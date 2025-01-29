@@ -12,12 +12,14 @@ interface AuthContextType {
   user: User | null
   login: (user: User) => void
   logout: () => void
+  isLoggedIn: () => boolean
 }
 
 export const AuthContext = createContext<AuthContextType>({
   user: null,
   login: () => {},
   logout: () => {},
+  isLoggedIn: () => false,
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -40,6 +42,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     removeItem("user")
   }
 
-  return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>
+  const isLoggedIn = () => {
+    return user !== null
+  }
+
+  return <AuthContext.Provider value={{ user, login, logout, isLoggedIn }}>{children}</AuthContext.Provider>
 }
 

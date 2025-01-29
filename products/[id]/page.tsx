@@ -6,16 +6,20 @@ import Link from "next/link"
 import { useParams } from "next/navigation"
 import Layout from "../../components/layout"
 import VirtualTrialRoom from "../../components/virtual-trial-room"
+import LoginModal from "../../components/login-modal"
 import { CartContext } from "../../contexts/cart-context"
+import { AuthContext } from "../../contexts/auth-context"
 import { products } from "../../data/products"
 
 export default function ProductPage() {
   const { id } = useParams()
   const product = products.find((p) => p.id === Number(id))
   const { addToCart } = useContext(CartContext)
+  const { isLoggedIn } = useContext(AuthContext)
   const [isAddedToCart, setIsAddedToCart] = useState(false)
   const [selectedSize, setSelectedSize] = useState(product?.sizes[0])
   const [selectedColor, setSelectedColor] = useState(product?.colors[0])
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
 
   if (!product) {
     return (
@@ -26,16 +30,20 @@ export default function ProductPage() {
   }
 
   const handleAddToCart = () => {
-    addToCart({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      quantity: 1,
-      size: selectedSize,
-      color: selectedColor,
-    })
-    setIsAddedToCart(true)
-    setTimeout(() => setIsAddedToCart(false), 2000)
+    if (isLoggedIn()) {
+      addToCart({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+        size: selectedSize,
+        color: selectedColor,
+      })
+      setIsAddedToCart(true)
+      setTimeout(() => setIsAddedToCart(false), 2000)
+    } else {
+      setIsLoginModalOpen(true)
+    }
   }
 
   const similarProducts = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4)
@@ -130,6 +138,7 @@ export default function ProductPage() {
           </div>
         </div>
       </div>
+      <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </Layout>
   )
 }
